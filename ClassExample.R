@@ -18,3 +18,5 @@ print("branch exercise")
 >>>>>>> origin/master
 
 print("Hi")
+
+# Made second new branch
