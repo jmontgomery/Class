@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-print("made another change")
-=======
-
->>>>>>> parent of 73e062f... made a change
 
 print("Hello World")
 
