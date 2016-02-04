@@ -16,3 +16,5 @@ print("branch exercise")
 =======
 print("branch exercise")
 >>>>>>> origin/master
+
+print("Hi")
