@@ -13,16 +13,31 @@ Beta
 # Make a function to create "Y" values (for a linear model).  The
 # Y-values should be a linear combination of the X's plus some random
 # noise.  The output should be a 20 by 1000 array.
-Y <- apply(x, 3, function(y) y %*% Beta + rnorm(20,0,1))
+Y <- array(apply(x, 3, function(y) y %*% Beta + rnorm(20,0,1)), dim=c(20,1,1000))
 
 #3) Run 1,000 regressions across all of this simulated data.  Have as
 #the output a 1000 by 6 matrix of estimated regression coefficients.
+regression <- function(i) {
+  lm(Y[,,i]~ x[,,i])$coefficients[1:6]
+  
+}
+system.time(regressed_data <- sapply(1:1000, regression))
 
 
 #4) Create a density plot for each of the 6 coefficients (each of
 #which should have been estimated 1,000 times).
-
+par(mfrow=c(2,3))
+plotting <- function(x){
+  plot(density(x), bty="n") 
+  abline(v=mean(x),col="red")
+  rug(x)
+}
+apply(regressed_data,1, plotting)
 # What does this represent?
-
+# red lines are the mean of beta, and
 #5) Re-run that code in parallel.  How does the system time compare for the parallel version?
-
+library('doMC')
+library('foreach')
+library(plyr)
+registerDoMC(cores=2)
+system.time(regressed_data2 <- m_ply(1:1000, regression, .parallel=TRUE))
