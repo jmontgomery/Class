@@ -1,0 +1,8 @@
+* installing *source* package ‘squaresPack’ ...
+** R
+Error in .install_package_code_files(".", instdir) : 
+files in '/Users/davidflast/Documents/MoreFilesYouNeed/squaresPack/R' missing from 'Collate' field:
+  David.R
+  printTaishi.R
+ERROR: unable to collate and parse R files for package ‘squaresPack’
+* removing ‘/Users/davidflast/Documents/MoreFilesYouNeed/squaresPack.Rcheck/squaresPack’
