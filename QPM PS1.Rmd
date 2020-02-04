@@ -1,0 +1,168 @@
+---
+title: "PS1 QPM1"
+author: "Taylor Damann"
+output: pdf_document
+header-includes:
+  - \usepackage{color}
+  - \usepackage{float}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, fig.pos = 'H')
+```
+
+This first assignment is meant to get you started with \texttt{R}. A good way to understand the object-oriented features of this programming language is to draw some plots and perform some data description. The exercises below will require that you write some code in \texttt{R}. Give it an honest try, but get help if you are stuck for too long.
+
+Present your output in a professional manner, with appropriately sized plots, clearly explaining what you are doing. I will not award full marks to a haphazard collection of graphs stapled together. You need to comment adroitly on what you learn from each particular exercise, and clearly label the graphs and tables that you are using in your presentation, and make sure the text makes explicit references to graphs and tables.
+
+
+\section{1. Agricultural Production in Mazulu}
+
+(Adapted from Fox 1997, exercise 2.2) Upload the \texttt{car} library, which will give you access to the \texttt{Sahlins} dataset.  These data describe agricultural production in the Mazulu village in Central Africa.  The dependent variable ($Y=$ acres per gardener) is meant to be a measure of domestic labor intensity.  The independent variable ($X=$ consumers per gardener) is the ratio of consumers to productive individuals in each of 20 households (adjusted for the consumption requirements of different household members).  The independent variable represents the relative consumption needs of the household, the dependent variable represents how hard each productive individual works.
+
+a) Draw a scatterplot of $Y$ versus $X$.  What relationship do you discern in the plot? Is $Y$ a linear, non-linear function of $X$?  Are there any unusual datapoints? (5 points)
+
+```{r, echo=FALSE, message=FALSE, fig.height = 4.2, fig.width = 4.2, fig.align='center', tidy=FALSE}
+library("ggplot2")
+library("car")
+library("grid")
+plot.1 <- ggplot(Sahlins, aes(x = consumers, y = acres)) + geom_point() + 
+    ggtitle("Figure 1. Agricultural Production in Mazulu, Central Africa") + 
+    theme(plot.title = element_text(hjust = 0.5)) + 
+    theme(plot.margin=unit(c(1,1,1.5,1.2),"cm")) +
+    xlab("Consumers per Gardener") + ylab("Acres per Gardener")
+plot.1
+```
+Figure 1 depicts the number of acres per gardener as a function of how many consumers per gardener reside in a household. These results demonstrate that there is a weakly positive linear relationship between the ratio of consumers to productive individuals in a household and the household's domestic labor capacity. As the relative consumption need of the household increases, there is a corresponding expected increase in labor intensity for the household. For households with relatively low consumption needs, one would expect low labor intensity. A single datapoint in the figure defies this expectation, having the greatest number of acres per gardener although there are low consumption needs. 
+
+b) The 20 observations (households) are ordered by values of $X$ (consumers per gardener).  Divide the 20 households into three groups, placing the first seven in group A, the next six in group B, the final seven in group C.  Calculate the mean $Y$ and mean $X$ in each of these three groups and locate these points in the scatterplot.  Then connect them with a simple ``non-parametric regression'' line (i.e., connect the dots).  Does this line help you make sense of the relationship between the variables? (10 points)
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 4.2, fig.width = 4.7, fig.align='center', tidy=FALSE}
+library(car)
+groupA <- Sahlins[1:7, ]
+groupB <- Sahlins[8:13, ]
+groupC <- Sahlins[14:20, ]
+Group <- c(rep("Group A", 7), rep("Group B", 6), rep("Group C", 7))
+Sahlins$Group <- Group
+mean.consumeA <- mean(groupA$consumers)
+mean.consumeB <- mean(groupB$consumers)
+mean.consumeC <- mean(groupC$consumers)
+mean.acresA <- mean(groupA$acres)
+mean.acresB <- mean(groupB$acres)
+mean.acresC <- mean(groupC$acres)
+mean.consumers <- c(mean.consumeA, mean.consumeB, mean.consumeC)
+mean.acres <- c(mean.acresA, mean.acresB, mean.acresC)
+mean.data <- data.frame(mean.consumers, mean.acres)
+plot.2 <- ggplot(Sahlins, aes(x = consumers, y = acres)) + geom_point() +
+    ggtitle("Figure 2. Agricultural Production in Mazulu by Group") + 
+    theme(plot.title = element_text(hjust = 0.5)) + 
+    theme(plot.margin=unit(c(1,1,1.5,1.2),"cm")) +
+    xlab("Consumers per Gardener") + ylab("Acres per Gardener") +
+    geom_point(aes(x=mean.consumeA, y=mean.acresA), colour="blue") +
+    geom_point(aes(x=mean.consumeB, y=mean.acresB), colour="red") +
+    geom_point(aes(x=mean.consumeC, y=mean.acresC), colour="green") +
+    geom_line(data = mean.data, aes(x=mean.data$mean.consumers, y=mean.data$mean.acres, 
+                                    inherit.aes = FALSE))
+plot.2
+```
+The colored dots on Figure 2 represent the means of the three groups where blue corresponds with group A, red with group B and green with group C. The coordinates of each mean is approximately $(1.18,2.07)$, $(1.50,1.94)$, and $(1.89,2.44)$ respectively. Adding a non-parametric regression line helps to make sense of the relationship between the variables in the graph. While it is tempting to say from Figure 1 that there is a weak positive relationship, Figure 2 shows that the mean of the middle group is lower than the means of both groups A and B. Therefore, while households with greater consumption demands do, on average, produce more than households with low consumption, the relationship is not linear. 
+
+\section{2. Probability Distributions in \texttt{R}}
+
+a)  Draw the graphs of the probability density function of the following distributions and plot them on a 2x2 figure (5 points):
+
+- The standard normal PDF
+- The Chi-squared PDF with 5 degrees of freedom
+- The F distribution PDF with degress of freedom 8 and 15
+- The Student's t PDF with 5 degrees of freedom
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 7, fig.width = 7, fig.align='center'}
+library(ggfortify)
+plot.3 <- ggdistribution(dnorm, seq(-3,3,0.1), mean = 0, sd = 1) +
+    ggtitle("Standard Normal") + 
+    theme(plot.title = element_text(size=7.5, hjust=0.5)) 
+plot.4 <- ggdistribution(dchisq, seq(0, 20, 0.1), df = 5) +
+    ggtitle("Chi-squared") + 
+    theme(plot.title = element_text(size=7.5, hjust=0.5))
+plot.5 <- ggdistribution(df, seq(0, 5, 0.1), df1 = 8, df2 = 15) +
+    ggtitle("F Distribution") + 
+    theme(plot.title = element_text(size=7.5, hjust=0.5))
+plot.6 <- ggdistribution(dt, seq(-5, 5, 0.1), df = 5) +
+    ggtitle("Student's t Distribution") + 
+    theme(plot.title = element_text(size=7.5, hjust=0.5))
+library(gridExtra)
+grid.arrange(plot.3, plot.4, plot.5, plot.6, nrow = 2, widths=c(2,2),
+             top="Figure 3. Probability Density Functions",
+             bottom="Value of x",
+             left="Probability")
+```
+Figure 3 shows the probability density functions of four common distributions. 
+
+b) Simulate 1000 values of $W_i = Z_1^2 + Z_2^2 + Z_3^2$, where $Z_i$ are i.i.d. standard normal random variables, and draw a histogram. Then compare it (by superimposing the graphs) with the theoretical PDF of the Chi-squared distribution with 3 degrees of freedom. Discuss the graph produced. (5 points)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 6, fig.width = 6, fig.align='center'}
+z1 <- rnorm(1000, mean = 0, sd = 1)
+z2 <- rnorm(1000, mean = 0, sd = 1)
+z3 <- rnorm(1000, mean = 0, sd = 1)
+w <- z1^2 + z2^2 + z3^2
+hist(w, breaks = 30, freq = F, main = "Figure 4. Histogram of w")
+  lines(x=seq(0,15,0.1), y=dchisq(seq(0,15,0.1), df=3))
+```
+The histogram in Figure 4 represents the sum of three squared independent and identically-distributed standard normal random variables. The densities at given values of $w$ vary because this is a simulation. Keep in mind that the densities of each vertical bar of the histogram will add to 1. However, theoretically the densities at a given $w$ would not increase and decrease randomly, but instead would follow a calculable pattern. The solid line represents this theoretical density function. 
+
+c) Create a function in R that returns the probability that a random variable $X$ takes a value less than or equal to a specific value $x$ provided by the user. The function should accommodate \textbf{three} common distributions of your choice (e.g., Normal, Poisson, Student's t, Chi-Square, F). (10 points)
+
+Below, I have created a function that returns the probability that a random variable $X$ takes a value less than or equal to a specifc value of $x$ provided. In addition, the function requires that the user specify whether the distribution is Poisson, Student's t, or Chi-Square. If none of these distributions are provided, the function will provide an output saying, "Not a specified distribution." The code below shows how I created the function:
+
+```{r}
+distr <- c("Poisson", "Student's t", "Chi-Square")
+my.function <- function(x,distr) 
+{
+  if (distr=="Poisson") {
+ppois(x,lambda=1)
+} else if (distr=="Student's t") {
+pt(x, df=2)
+} else if (distr=="Chi-Square") {
+pchisq(x, df=2)
+} else {
+paste("Not a specified distribution.") }}
+```
+
+\section{3. Joint and Conditional Probabilities}
+
+(Adapted from DeGroot, p.146) Suppose that in the population of US college students the joint distribution of test scores $Y$ on mathematical and musical aptitudes is bivariate normal with the following parameters:
+\[
+\mathbf{Y} \sim \mathcal{N}\left( 
+  \begin{bmatrix}    350  \\     300 \end{bmatrix},~~
+	\begin{bmatrix} 20 & 15 \\ 15 & 25 \end{bmatrix}
+   \right)
+\]
+Use \texttt{R} to draw 2,500 simulations from this joint probability density function and answer the following questions (use the \texttt{mvrnorm} function in the \texttt{MASS} library):
+
+a) Approximately what proportion of college students obtain a score greater than 355 on the mathematics tests? (The mean math score is 350) (5 points)
+
+About $13.88$ percent of students obtained a score greater than 355 on the mathematics tests.I use the following code to find this proportion. 
+```{r, echo=TRUE}
+library(mvtnorm)
+sigma <- matrix(data = c(20, 15, 15, 25), nrow = 2)
+joint <- rmvnorm(2500, mean = c(350, 300), sigma = sigma)
+prop <- nrow(joint[joint[,1] > 355,])/(nrow(joint))
+prop
+```
+
+b) If a student's score on the music test is between 290 and 295, what is the approximated probability that his score on the mathematics test will be greater than 350? (5 points)
+
+There is about a $12.35$ percent probability that a student scoring between $290$ and $295$ on the music test will score higher than $350$ on the math test. I use the following code to find the answer. 
+```{r, echo=TRUE}
+condition <- joint[ , 2] > 290 & joint[ , 2] < 295
+prob350 <- sum(joint[condition, 1]>350)/length(joint[condition, 1])
+prob350
+```
+
+c) If a student's score on the mathematics test is lower than 340, what is her expected test score on the music test? (5 points)
+
+Given that a student scores less than 340 on the math test, they are expected to receive approximately a $289.6$ on the music test. 
+```{r, echo=TRUE}
+condition2 <- joint[,1] < 340
+exp.test.score <- sum(joint[condition2,2])/length(joint[condition2,2])
+exp.test.score
+```
