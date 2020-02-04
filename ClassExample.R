@@ -9,5 +9,3 @@ print("A new line")
 print("A third line")
 
 #hi
-
-#hello
